@@ -343,7 +343,7 @@ public class TabbedTable extends JFrame implements ActionListener {
                     msg = msg.substring(8); // "고객요청사항:" 부분을 제거하여 전송
                 }
 
-                out.write("테이블 번호:" + number+ "\n"+"고객요청사항: " + msg + "\n"); // 문자열 전송
+                out.write("고객요청사항: " + msg + "\n"); // 문자열 전송
                 out.flush();
 
                 int pos = receiver.getText().length();

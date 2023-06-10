@@ -46,7 +46,7 @@ public class EchoServer extends JFrame {
         tabbedPane.addTab("테이블 주문 현황",tablePanel);
 
         getContentPane().add(tabbedPane);
-        setSize(800, 500);
+        setSize(1450, 600);
         setVisible(true);
 
         clientSockets = new ArrayList<>();
