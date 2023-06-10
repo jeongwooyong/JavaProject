@@ -30,14 +30,16 @@ public class TabbedTable extends JFrame implements ActionListener {
 
     // 인기메뉴에 해당하는 Panel
     private JPanel popular = new JPanel();
-    private JPanel[][] p;
+    private JPanel drink = new JPanel();
+    private JPanel[][] p,c;
     private JButton[][] plus, minus, basket;
     private JButton getbasket,canclebasket,total;
     private JLabel[][] lWon,lmenu, count1;
     private org.example.excel.orderEX orderEX;
-    public int number = orderEX.getCount();
+    private int number;
     int totalsum =0;
-    public TabbedTable() {
+    public TabbedTable(int number) {
+        this.number = number;
         // 타이틀 제목에 테이블 번호를 입력함
         setTitle("Table" + "명지 주문 시스템 테이블 번호 " + number);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,6 +60,7 @@ public class TabbedTable extends JFrame implements ActionListener {
         final int[] count = {0};
         //GridLayout 으로 설정. 3,3 5는 픽셀단위
         popular.setLayout(new GridLayout(numRows, size, 5, 5));
+        drink.setLayout(new GridLayout(numRows, size, 5, 5));
 
         //버튼 배열 생성
         p = new JPanel[numRows][numCols];
@@ -75,7 +78,6 @@ public class TabbedTable extends JFrame implements ActionListener {
         LinkedHashMap<String, String> price = new LinkedHashMap<>();
         price.put("10000","제육덮밥");
         price.put("9000", "고추장찌개");
-        price.put("8000","새우볶음밥");
         price.put("11000","돌솥비빔밥");
         price.put("7000","순두부찌개");
         price.put("6000","오므라이스");
@@ -83,18 +85,42 @@ public class TabbedTable extends JFrame implements ActionListener {
         price.put("4500","떡만두국");
         price.put("6500","짜장면");
         price.put("25000","해물찜");
+
         //키의 값을 이용해서 사진을 가져오기 위해서 Generic으로 설정
         LinkedHashMap<String, String> imagePaths = new LinkedHashMap<>();
-        imagePaths.put("10000", "c:/jangu.jpg");
-        imagePaths.put("9000", "c:/jangu.jpg");
-        imagePaths.put("8000", "c:/jangu.jpg");
-        imagePaths.put("11000", "c:/jangu.jpg");
-        imagePaths.put("7000", "c:/jangu.jpg");
-        imagePaths.put("6000", "c:/jangu.jpg");
-        imagePaths.put("4000", "c:/jangu.jpg");
-        imagePaths.put("4500", "c:/jangu.jpg");
-        imagePaths.put("6500", "c:/jangu.jpg");
-        imagePaths.put("25000", "c:/jangu.jpg");
+        imagePaths.put("10000", "c:/제육덮밥.png");
+        imagePaths.put("9000", "c:/고추장찌개.png");
+        imagePaths.put("11000", "c:/돌솥비빔밥.png");
+        imagePaths.put("7000", "c:/순두부찌개.png");
+        imagePaths.put("6000", "c:/오므라이스.png");
+        imagePaths.put("4000", "c:/라면.png");
+        imagePaths.put("4500", "c:/떡국.png");
+        imagePaths.put("6500", "c:/짜장면.png");
+        imagePaths.put("25000", "c:/해물찜.png");
+
+        LinkedHashMap<String, String> coffe = new LinkedHashMap<>();
+        coffe.put("1200","아이스 아메리카노");
+        coffe.put("1000", "아메리카노");
+        coffe.put("3000","카푸치노");
+        coffe.put("2500","자몽에이드");
+        coffe.put("2000","레몬에이드");
+        coffe.put("4600","딸기스무디");
+        coffe.put("4800","녹차라떼");
+        coffe.put("4200","초코라떼");
+        coffe.put("5500","소주");
+        coffe.put("5000","맥주");
+
+        LinkedHashMap<String, String> image = new LinkedHashMap<>();
+        image.put("1200","c:/아이스 아메리카노.jpg");
+        image.put("1000", "c:/아메리카노.jpg");
+        image.put("3000","c:/카푸치노.jpg");
+        image.put("2500","c:/자몽에이드.jpg");
+        image.put("2000","c:/레몬에이드.jpg");
+        image.put("4600","c:/딸기스무디.jpg");
+        image.put("4800","c:/녹차라떼.jpg");
+        image.put("4200","c:/초코라떼.jpg");
+        image.put("5500","c:/소주.jpg");
+        image.put("5000","c:/맥주.jpg");
         //교과서 414p 에 있는 Iterator 를 사용함.
         Set<String> keys = price.keySet();
         Iterator<String> it = keys.iterator();
@@ -104,6 +130,7 @@ public class TabbedTable extends JFrame implements ActionListener {
         for(int i=0; i<numRows; i++) {
             for (int j = 0; j < numCols; j++) {
                 p[i][j] = new JPanel();
+
                 String key = it.next();
                 //사진을 가져오기 위해서 key로 가져오고, 크기를 조절하기 위해서 다음과 같이 진행함
                 String imagePath = imagePaths.get(key);
@@ -112,6 +139,13 @@ public class TabbedTable extends JFrame implements ActionListener {
                 Image sizeImage = img.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
                 ImageIcon changeIcon = new ImageIcon(sizeImage);
                 JLabel imageLabel = new JLabel(changeIcon);
+
+                String imagePath2 = image.get(key);
+                ImageIcon imageIcon2 = new ImageIcon(imagePath2);
+                Image img2 = imageIcon2.getImage();
+                Image sizeImage2 = img2.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+                ImageIcon changeIcon2 = new ImageIcon(sizeImage2);
+                JLabel imageLabel2 = new JLabel(changeIcon2);
 
                 // 값을 넣기 위해서 Iterator를 사용한 것.
                 count1[i][j] = new JLabel("1");
@@ -217,7 +251,7 @@ public class TabbedTable extends JFrame implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 String call = basketText.getText(); // 텍스트 필드에 사용자가 입력한 문자열
                 try {
-                    out.write("테이블 번호 " + number + "\n" + call); // 문자열 전송
+                    out.write(call); // 문자열 전송
                     ;
                     receiver.append(call);
                     billText.append(call);
@@ -240,7 +274,7 @@ public class TabbedTable extends JFrame implements ActionListener {
         canclebasket.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                basketText.setText("테이블 번호 " + number + "\n\n");
+                basketText.setText("");
             }
         });
 
@@ -265,8 +299,11 @@ public class TabbedTable extends JFrame implements ActionListener {
         // BorderLayout의 왼쪽에 추가.
         JScrollPane popularScroll = new JScrollPane(popular);
         popularScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  // 수직 스크롤
+        JScrollPane coffeScroll = new JScrollPane(drink);
+        coffeScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  // 수직 스크롤
         popular.setPreferredSize(new Dimension(1000, 600)); // 원하는 크기로 설정
         pane.addTab("인기 메뉴", popularScroll);
+        pane.addTab("음료",coffeScroll);
         pane.add("장바구니", buy);
         pane.add("계산서", bill);
         add(pane, BorderLayout.WEST);
@@ -344,6 +381,7 @@ public class TabbedTable extends JFrame implements ActionListener {
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); // 클라이언트로의 출력 스트림
     }
     public static void main(String[] args) {
-        new TabbedTable();
+        int tableNumber=1;
+        new TabbedTable(tableNumber);
     }
 }

@@ -7,24 +7,45 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class EchoServer extends JFrame {
     private List<Socket> clientSockets;
     private List<Receiver> receivers;
     private ServerSocket listener;
     private JTextArea messageArea;
+    private JTextArea tableArea[];
+    private JTabbedPane tabbedPane;
 
     public EchoServer() {
         setTitle("메뉴 주문 창");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Container c = getContentPane();
-        c.setLayout(new BorderLayout());
+
+        JPanel receivePanel = new JPanel();
+        JPanel tablePanel = new JPanel();
+        receivePanel.setLayout(new BorderLayout());
+        tablePanel.setLayout(new FlowLayout());
+
+        tabbedPane = new JTabbedPane(JTabbedPane.LEFT);
 
         messageArea = new JTextArea();
-        messageArea.setEditable(false);
-        c.add(new JScrollPane(messageArea), BorderLayout.CENTER);
 
-        setSize(400, 200);
+        tableArea = new JTextArea[5];
+        for (int i = 0; i < tableArea.length; i++) {
+            tableArea[i] = new JTextArea();
+            tableArea[i].setText("테이블 번호 " + (i+1) + ":\n");
+            tablePanel.add(new JScrollPane(tableArea[i]));
+        }
+
+        messageArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(messageArea);
+        receivePanel.add(scrollPane, BorderLayout.CENTER);
+
+        tabbedPane.addTab("서버 통신", receivePanel);
+        tabbedPane.addTab("테이블 주문 현황",tablePanel);
+
+        getContentPane().add(tabbedPane);
+        setSize(800, 500);
         setVisible(true);
 
         clientSockets = new ArrayList<>();
@@ -39,15 +60,23 @@ public class EchoServer extends JFrame {
 
     private void setupConnection() throws IOException {
         listener = new ServerSocket(9999);
+
+        AtomicInteger tableNumber = new AtomicInteger(1); // AtomicInteger를 사용하여 원자적으로 테이블 번호를 증가시킴
         while (true) {
             Socket socket = listener.accept();
+            if (tableNumber.get() > 5) {
+                tableNumber.set(1); // 테이블 번호가 5를 넘어가면 다시 1로 초기화
+            }
+
             clientSockets.add(socket);
 
-            Receiver receiver = new Receiver(socket);
+            Receiver receiver = new Receiver(socket, tableNumber.getAndIncrement());
             receivers.add(receiver);
 
             Thread thread = new Thread(receiver);
             thread.start();
+
+
         }
     }
 
@@ -60,9 +89,11 @@ public class EchoServer extends JFrame {
         private Socket socket;
         private BufferedReader in;
         private BufferedWriter out;
+        private int tableNumber;
 
-        public Receiver(Socket socket) {
+        public Receiver(Socket socket, int tableNumber) {
             this.socket = socket;
+            this.tableNumber = tableNumber;
             try {
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
@@ -80,7 +111,28 @@ public class EchoServer extends JFrame {
                     System.out.println("메뉴 주문: " + message);
                     final String finalMessage = message;
                     SwingUtilities.invokeLater(() -> {
-                        EchoServer.this.messageArea.append("메뉴 주문: " + finalMessage + "\n");
+                        EchoServer.this.messageArea.append("테이블번호: "+tableNumber+" " + finalMessage + "\n");
+
+                        switch (tableNumber) {
+                            case 1:
+                                tableArea[0].append("메뉴 주문: " + finalMessage + "\n");
+                                break;
+                            case 2:
+                                tableArea[1].append("메뉴 주문: " + finalMessage + "\n");
+                                break;
+                            case 3:
+                                tableArea[2].append("메뉴 주문: " + finalMessage + "\n");
+                                break;
+                            case 4:
+                                tableArea[3].append("메뉴 주문: " + finalMessage + "\n");
+                                break;
+                            case 5:
+                                tableArea[4].append("메뉴 주문: " + finalMessage + "\n");
+                                break;
+                            default:
+                                System.out.println("잘못된 테이블 번호입니다: " + tableNumber);
+                                break;
+                        }
                     });
                 }
             } catch (IOException e) {

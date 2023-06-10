@@ -1,19 +1,16 @@
 package org.example.excel;
 
-import org.example.excel.TabbedTable;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.example.excel.Initial;
 
 class orderEX extends Thread {
     private static int num;
 
     public void run() {
         //스레드가 진행되면 TabbedTable아
-        new TabbedTable();
+        new TabbedTable(num);
     }
     //스레드의 테이블 카운트를 지정하는 메소드
     public void setCount(int num) {
