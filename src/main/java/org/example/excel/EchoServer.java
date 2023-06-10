@@ -16,7 +16,8 @@ public class EchoServer extends JFrame {
     private JTextArea messageArea;
     private JTextArea tableArea[];
     private JTabbedPane tabbedPane;
-
+    int number;
+    private int tableNumber;
     public EchoServer() {
         setTitle("메뉴 주문 창");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,17 +61,15 @@ public class EchoServer extends JFrame {
 
     private void setupConnection() throws IOException {
         listener = new ServerSocket(9999);
-
-        AtomicInteger tableNumber = new AtomicInteger(1); // AtomicInteger를 사용하여 원자적으로 테이블 번호를 증가시킴
+        number = tableNumber;
+      
         while (true) {
             Socket socket = listener.accept();
-            if (tableNumber.get() > 5) {
-                tableNumber.set(1); // 테이블 번호가 5를 넘어가면 다시 1로 초기화
-            }
-
+            DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+            tableNumber = dataInputStream.readInt();
             clientSockets.add(socket);
 
-            Receiver receiver = new Receiver(socket, tableNumber.getAndIncrement());
+            Receiver receiver = new Receiver(socket, tableNumber);
             receivers.add(receiver);
 
             Thread thread = new Thread(receiver);
@@ -86,15 +85,17 @@ public class EchoServer extends JFrame {
     }
 
     private class Receiver implements Runnable {
+        private final int tableNumber;
         private Socket socket;
         private BufferedReader in;
         private BufferedWriter out;
-        private int tableNumber;
+
 
         public Receiver(Socket socket, int tableNumber) {
             this.socket = socket;
             this.tableNumber = tableNumber;
             try {
+
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             } catch (IOException e) {

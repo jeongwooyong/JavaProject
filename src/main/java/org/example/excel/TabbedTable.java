@@ -373,6 +373,10 @@ public class TabbedTable extends JFrame implements ActionListener {
     private void setupConnection() throws IOException {
         socket = new Socket("localhost", 9999); // 클라이언트 소켓 생성
         // System.out.println("연결됨");
+        OutputStream outputStream = socket.getOutputStream();
+        DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+        dataOutputStream.writeInt(number);
+        dataOutputStream.flush();
         receiver.append("주문내역"+"\n");
         int pos = receiver.getText().length();
         receiver.setCaretPosition(pos); // caret 포지션을 가장 마지막으로 이동
